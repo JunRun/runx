@@ -13,7 +13,7 @@ type IConnection interface {
 	//发送数据的方法
 	Send(data []byte) error
 
-	RemoteAddress() *net.Addr
+	RemoteAddress() net.Addr
 }
 
 type HandleFunc func(*net.TCPConn, []byte, int) error

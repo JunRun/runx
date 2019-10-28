@@ -1,6 +1,7 @@
 package rImpl
 
 import (
+	"fmt"
 	"github.com/runx/server/rIterface"
 	"net"
 )
@@ -12,7 +13,7 @@ type Connection struct {
 	//tcp Id
 	ConnID uint64
 
-	//该链接 当前状态
+	//该链接 当前状态 true 链接中 ，false :关闭
 	Closed bool
 
 	// 通知 链接退出 的通道
@@ -32,4 +33,36 @@ func NewConnection(Conn *net.TCPConn, ConnID uint64, HandelApi rIterface.HandleF
 		HandelApi: HandelApi,
 	}
 	return c
+}
+
+func (c *Connection) Start() {
+
+}
+
+func (c *Connection) Stop() {
+	fmt.Println("Connection stop ConnID :", c.ConnID)
+	if c.Closed == false {
+		return
+	}
+	c.Closed = false
+	close(c.ExitChan)
+	return
+}
+
+//获取链接当前链接对象的的套接字
+func (c *Connection) GetTcpNetConnection() *net.TCPConn {
+	return c.Conn
+}
+
+func (c *Connection) GetConnID() uint64 {
+	return c.ConnID
+}
+
+//发送数据的方法
+func (c *Connection) Send(data []byte) error {
+	return nil
+}
+
+func (c *Connection) RemoteAddress() net.Addr {
+	return c.Conn.RemoteAddr()
 }

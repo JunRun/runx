@@ -36,7 +36,9 @@ func NewConnection(Conn *net.TCPConn, ConnID uint64, HandelApi rIterface.HandleF
 }
 
 func (c *Connection) Start() {
-
+	fmt.Println("Connection  start ConnID =  :", c.ConnID)
+	go c.StartReader()
+	//todo 读写业务分离
 }
 
 func (c *Connection) Stop() {
@@ -48,6 +50,27 @@ func (c *Connection) Stop() {
 	close(c.ExitChan)
 	return
 }
+func (c *Connection) StartReader() {
+	fmt.Println("Connection StartReader ConnID = ", c.ConnID)
+	defer fmt.Println("CoonID = ", c.ConnID, "RemoteAddress is exit", c.RemoteAddress().String())
+	defer c.Stop()
+	for {
+		bytes := make([]byte, 512)
+		cnt, err := c.Conn.Read(bytes)
+		if err != nil {
+			fmt.Println("conn read err", err)
+			continue
+		}
+		if err := c.HandelApi(c.Conn, bytes, cnt); err != nil {
+			fmt.Println("HandleApi err", err)
+		}
+	}
+}
+
+//发送数据的方法
+func (c *Connection) Send(data []byte) error {
+	return nil
+}
 
 //获取链接当前链接对象的的套接字
 func (c *Connection) GetTcpNetConnection() *net.TCPConn {
@@ -56,11 +79,6 @@ func (c *Connection) GetTcpNetConnection() *net.TCPConn {
 
 func (c *Connection) GetConnID() uint64 {
 	return c.ConnID
-}
-
-//发送数据的方法
-func (c *Connection) Send(data []byte) error {
-	return nil
 }
 
 func (c *Connection) RemoteAddress() net.Addr {

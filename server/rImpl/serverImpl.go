@@ -3,13 +3,11 @@ package rImpl
 import (
 	"fmt"
 	"github.com/runx/server/rIterface"
+	"github.com/runx/util"
 	"log"
 	"net"
 )
 
-type SeverConfig struct {
-	Server map[string]Server
-}
 type Server struct {
 	//sever name
 	Name      string `yaml:"name"`
@@ -19,14 +17,14 @@ type Server struct {
 	Router    rIterface.IRouter
 }
 
-func NewServer(Name string) *Server {
-	log.Println(Name)
+func NewServer() *Server {
+	log.Println(util.Config.GetString("server.name"))
 
 	ser := &Server{
-		Name:      Name,
-		IPVersion: "tcp4",
-		IPAddress: "0.0.0.0",
-		Port:      9090,
+		Name:      util.Config.GetString("server.name"),
+		IPVersion: util.Config.GetString("server.ip_version"),
+		IPAddress: util.Config.GetString("sever.ip_address"),
+		Port:      util.Config.GetInt("server.port"),
 		Router:    nil,
 	}
 	return ser

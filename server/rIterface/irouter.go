@@ -7,7 +7,7 @@
 package rIterface
 
 type IRouter interface {
-	//处理conn连接之前的业务方法
+	//处理conn连接之前的业务方法 hook
 	PreHandle(request IRequest)
 	//处理主业务方法
 	Handle(request IRequest)

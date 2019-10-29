@@ -60,10 +60,12 @@ func (c *Connection) StartReader() {
 			fmt.Println("conn read err", err)
 			continue
 		}
+		//创建请求体
 		req := Request{
 			conn: c,
 			data: bytes,
 		}
+		//执行router方法
 		go func(req *Request) {
 			c.Router.PreHandle(req)
 			c.Router.Handle(req)

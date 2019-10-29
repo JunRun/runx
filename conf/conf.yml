@@ -1,0 +1,5 @@
+server:
+  name: runxapp
+  ip_version: tcp4
+  ip_address: 0.0.0.0
+  port: 9090

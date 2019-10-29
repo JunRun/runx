@@ -1,8 +1,8 @@
 package rImpl
 
 import (
-	"errors"
 	"fmt"
+	"github.com/runx/server/rIterface"
 	"log"
 	"net"
 )
@@ -16,6 +16,7 @@ type Server struct {
 	IPVersion string `yaml:"ip_version"`
 	IPAddress string `yaml:"ip_address"`
 	Port      int    `yaml:"port"`
+	Router    rIterface.IRouter
 }
 
 func NewServer(Name string) *Server {
@@ -26,6 +27,7 @@ func NewServer(Name string) *Server {
 		IPVersion: "tcp4",
 		IPAddress: "0.0.0.0",
 		Port:      9090,
+		Router:    nil,
 	}
 	return ser
 }
@@ -59,7 +61,7 @@ func (s *Server) Start() {
 				continue
 			}
 
-			nc := NewConnection(accept, connID, CallBack)
+			nc := NewConnection(accept, connID, s.Router)
 			connID++
 			go nc.Start()
 
@@ -72,15 +74,6 @@ func (s *Server) Stop() {
 
 }
 
-func CallBack(Conn *net.TCPConn, bytes []byte, cnt int) error {
-
-	fmt.Printf("recv message %s", bytes)
-	fmt.Println("")
-	if _, err := Conn.Write(bytes[:cnt]); err != nil {
-		fmt.Println("write buf back err:", err)
-		return errors.New("CallBack error")
-
-	}
-	return nil
-
+func (s *Server) AddRouter(router rIterface.IRouter) {
+	s.Router = router
 }

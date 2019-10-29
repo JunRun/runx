@@ -1,7 +1,7 @@
 package rIterface
 
 type IRequest interface {
-	GetConnection() *IConnection
+	GetConnection() IConnection
 
 	GetData() []byte
 }

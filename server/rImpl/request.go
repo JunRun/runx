@@ -3,12 +3,12 @@ package rImpl
 import "github.com/runx/server/rIterface"
 
 type Request struct {
-	conn *rIterface.IConnection
+	conn rIterface.IConnection
 
 	data []byte
 }
 
-func (r *Request) GetConnection() *rIterface.IConnection {
+func (r *Request) GetConnection() rIterface.IConnection {
 	return r.conn
 }
 

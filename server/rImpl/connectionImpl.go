@@ -19,18 +19,17 @@ type Connection struct {
 	// 通知 链接退出 的通道
 	ExitChan chan bool
 
-	//当前链接所绑定的 业务处理方法
-	HandelApi rIterface.HandleFunc
+	Router rIterface.IRouter
 }
 
 //初始化链接模块
-func NewConnection(Conn *net.TCPConn, ConnID uint64, HandelApi rIterface.HandleFunc) *Connection {
+func NewConnection(Conn *net.TCPConn, ConnID uint64, Router rIterface.IRouter) *Connection {
 	c := &Connection{
-		Conn:      Conn,
-		ConnID:    ConnID,
-		Closed:    true,
-		ExitChan:  make(chan bool, 1),
-		HandelApi: HandelApi,
+		Conn:     Conn,
+		ConnID:   ConnID,
+		Closed:   true,
+		ExitChan: make(chan bool, 1),
+		Router:   Router,
 	}
 	return c
 }
@@ -56,14 +55,20 @@ func (c *Connection) StartReader() {
 	defer c.Stop()
 	for {
 		bytes := make([]byte, 512)
-		cnt, err := c.Conn.Read(bytes)
+		_, err := c.Conn.Read(bytes)
 		if err != nil {
 			fmt.Println("conn read err", err)
 			continue
 		}
-		if err := c.HandelApi(c.Conn, bytes, cnt); err != nil {
-			fmt.Println("HandleApi err", err)
+		req := Request{
+			conn: c,
+			data: bytes,
 		}
+		go func(req *Request) {
+			c.Router.PreHandle(req)
+			c.Router.Handle(req)
+			c.Router.PostHandle(req)
+		}(&req)
 	}
 }
 

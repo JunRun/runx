@@ -65,13 +65,14 @@ func (c *Connection) StartWriter() {
 				fmt.Println("writer err,connID: ", c.ConnID, err)
 			}
 		case <-c.ExitChan:
+			fmt.Println("writer exit")
 			return
 		}
 	}
 }
 func (c *Connection) StartReader() {
 	fmt.Println("Connection StartReader ConnID = ", c.ConnID)
-	defer fmt.Println("CoonID = ", c.ConnID, "RemoteAddress is exit", c.RemoteAddress().String())
+	defer fmt.Println("Reader exit, CoonID = ", c.ConnID, "RemoteAddress is exit", c.RemoteAddress().String())
 	defer c.Stop()
 	for {
 		pack := NewDataPack()

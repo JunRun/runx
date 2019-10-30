@@ -5,7 +5,6 @@ type ServerIF interface {
 	Start()
 	//stop server
 	Stop()
-	//
 
 	AddRouter(router IRouter)
 }

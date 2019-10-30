@@ -18,9 +18,8 @@ type PingRouter struct {
 
 func (p *PingRouter) PreHandle(request rIterface.IRequest) {
 	fmt.Println("PreHandle start")
-	if _, err := request.GetConnection().GetTcpNetConnection().Write([]byte("PrePing\n")); err != nil {
-		fmt.Println("PreHandle err;", err)
-	}
+	fmt.Printf("id:%d recv :%s\n", request.GetMessageID(), request.GetData())
+	request.GetConnection().SendMsg(1, []byte("preKing"))
 }
 
 func (p *PingRouter) Handle(request rIterface.IRequest) {

@@ -11,7 +11,7 @@ type IConnection interface {
 
 	GetConnID() uint64
 	//发送数据的方法
-	Send(data []byte) error
+	SendMsg(Id uint64, data []byte) error
 
 	RemoteAddress() net.Addr
 }

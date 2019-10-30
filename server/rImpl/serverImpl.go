@@ -67,6 +67,9 @@ func (s *Server) Start() {
 	}()
 
 }
+func (s *Server) SendMsg(Id uint64, data []byte) {
+
+}
 
 func (s *Server) Stop() {
 

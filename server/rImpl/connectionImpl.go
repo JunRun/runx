@@ -1,8 +1,10 @@
 package rImpl
 
 import (
+	"errors"
 	"fmt"
 	"github.com/runx/server/rIterface"
+	"io"
 	"net"
 )
 
@@ -54,16 +56,33 @@ func (c *Connection) StartReader() {
 	defer fmt.Println("CoonID = ", c.ConnID, "RemoteAddress is exit", c.RemoteAddress().String())
 	defer c.Stop()
 	for {
-		bytes := make([]byte, 512)
-		_, err := c.Conn.Read(bytes)
-		if err != nil {
-			fmt.Println("conn read err", err)
-			continue
+		pack := NewDataPack()
+		//读取头部数据
+		bytes := make([]byte, pack.GetHeadLen())
+		if _, err := io.ReadFull(c.GetTcpNetConnection(), bytes); err != nil {
+			fmt.Println("read msg head err")
+			break
 		}
+
+		headMessage, err := pack.UnPackData(bytes)
+		if err != nil {
+			fmt.Println(err)
+			break
+		}
+
+		data := make([]byte, headMessage.GetMessageLen())
+		if headMessage.GetMessageLen() > 0 {
+			//读取数据流
+			if _, err := io.ReadFull(c.GetTcpNetConnection(), data); err != nil {
+				fmt.Println("read data err")
+				break
+			}
+		}
+		headMessage.SetData(data)
 		//创建请求体
 		req := Request{
-			conn: c,
-			data: bytes,
+			conn:    c,
+			message: headMessage,
 		}
 		//执行router方法
 		go func(req *Request) {
@@ -75,7 +94,24 @@ func (c *Connection) StartReader() {
 }
 
 //发送数据的方法
-func (c *Connection) Send(data []byte) error {
+func (c *Connection) SendMsg(Id uint64, data []byte) error {
+	if c.Closed == false {
+		return errors.New("channel was closed")
+	}
+	m := &Message{
+		MessageId:     Id,
+		MessageLength: uint64(len(data)),
+		Data:          data,
+	}
+	pack := DataPack{}
+	bytes, err := pack.PackData(m)
+	if err != nil {
+		return err
+	}
+	_, er := c.GetTcpNetConnection().Write(bytes)
+	if er != nil {
+		return er
+	}
 	return nil
 }
 

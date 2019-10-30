@@ -20,7 +20,9 @@ type Connection struct {
 
 	// 通知 链接退出 的通道
 	ExitChan chan bool
-
+	// 读，写 协程传递数据的通道
+	MesCh chan []byte
+	// 多路由方法
 	Ms rIterface.IMsgHandler
 }
 
@@ -30,6 +32,7 @@ func NewConnection(Conn *net.TCPConn, ConnID uint64, handler rIterface.IMsgHandl
 		Conn:     Conn,
 		ConnID:   ConnID,
 		Closed:   true,
+		MesCh:    make(chan []byte),
 		ExitChan: make(chan bool, 1),
 		Ms:       handler,
 	}
@@ -39,7 +42,7 @@ func NewConnection(Conn *net.TCPConn, ConnID uint64, handler rIterface.IMsgHandl
 func (c *Connection) Start() {
 	fmt.Println("Connection  start ConnID =  :", c.ConnID)
 	go c.StartReader()
-	//todo 读写业务分离
+	go c.StartWriter()
 }
 
 func (c *Connection) Stop() {
@@ -47,9 +50,24 @@ func (c *Connection) Stop() {
 	if c.Closed == false {
 		return
 	}
+	c.Conn.Close()
 	c.Closed = false
 	close(c.ExitChan)
+	close(c.MesCh)
 	return
+}
+func (c *Connection) StartWriter() {
+	fmt.Println("[writer]")
+	for {
+		select {
+		case data := <-c.MesCh:
+			if _, err := c.GetTcpNetConnection().Write(data); err != nil {
+				fmt.Println("writer err,connID: ", c.ConnID, err)
+			}
+		case <-c.ExitChan:
+			return
+		}
+	}
 }
 func (c *Connection) StartReader() {
 	fmt.Println("Connection StartReader ConnID = ", c.ConnID)
@@ -104,10 +122,7 @@ func (c *Connection) SendMsg(Id uint64, data []byte) error {
 	if err != nil {
 		return err
 	}
-	_, er := c.GetTcpNetConnection().Write(bytes)
-	if er != nil {
-		return er
-	}
+	c.MesCh <- bytes
 	return nil
 }
 

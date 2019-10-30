@@ -10,22 +10,22 @@ import (
 
 type Server struct {
 	//sever name
-	Name      string `yaml:"name"`
-	IPVersion string `yaml:"ip_version"`
-	IPAddress string `yaml:"ip_address"`
-	Port      int    `yaml:"port"`
-	Router    rIterface.IRouter
+	Name          string `yaml:"name"`
+	IPVersion     string `yaml:"ip_version"`
+	IPAddress     string `yaml:"ip_address"`
+	Port          int    `yaml:"port"`
+	RouterHandler rIterface.IMsgHandler
 }
 
 func NewServer() *Server {
 	log.Println(util.Config.GetString("server.name"))
 
 	ser := &Server{
-		Name:      util.Config.GetString("server.name"),
-		IPVersion: util.Config.GetString("server.ip_version"),
-		IPAddress: util.Config.GetString("sever.ip_address"),
-		Port:      util.Config.GetInt("server.port"),
-		Router:    nil,
+		Name:          util.Config.GetString("server.name"),
+		IPVersion:     util.Config.GetString("server.ip_version"),
+		IPAddress:     util.Config.GetString("sever.ip_address"),
+		Port:          util.Config.GetInt("server.port"),
+		RouterHandler: NewMsgHandler(),
 	}
 	return ser
 }
@@ -59,7 +59,7 @@ func (s *Server) Start() {
 				continue
 			}
 
-			nc := NewConnection(accept, connID, s.Router)
+			nc := NewConnection(accept, connID, s.RouterHandler)
 			connID++
 			go nc.Start()
 
@@ -72,6 +72,6 @@ func (s *Server) Stop() {
 
 }
 
-func (s *Server) AddRouter(router rIterface.IRouter) {
-	s.Router = router
+func (s *Server) AddRouter(Id uint64, router rIterface.IRouter) {
+	s.RouterHandler.AddRouter(Id, router)
 }

@@ -21,17 +21,17 @@ type Connection struct {
 	// 通知 链接退出 的通道
 	ExitChan chan bool
 
-	Router rIterface.IRouter
+	Ms rIterface.IMsgHandler
 }
 
 //初始化链接模块
-func NewConnection(Conn *net.TCPConn, ConnID uint64, Router rIterface.IRouter) *Connection {
+func NewConnection(Conn *net.TCPConn, ConnID uint64, handler rIterface.IMsgHandler) *Connection {
 	c := &Connection{
 		Conn:     Conn,
 		ConnID:   ConnID,
 		Closed:   true,
 		ExitChan: make(chan bool, 1),
-		Router:   Router,
+		Ms:       handler,
 	}
 	return c
 }
@@ -85,11 +85,7 @@ func (c *Connection) StartReader() {
 			message: headMessage,
 		}
 		//执行router方法
-		go func(req *Request) {
-			c.Router.PreHandle(req)
-			c.Router.Handle(req)
-			c.Router.PostHandle(req)
-		}(&req)
+		go c.Ms.DoMsgHandler(&req)
 	}
 }
 

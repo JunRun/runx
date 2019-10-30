@@ -8,6 +8,7 @@ import (
 
 func main() {
 	s := rImpl.NewServer()
-	s.AddRouter(&router.PingRouter{})
+	s.AddRouter(0, &router.PingRouter{})
+	s.AddRouter(1, &router.Hell{})
 	s.Sever()
 }

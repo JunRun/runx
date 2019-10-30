@@ -6,5 +6,5 @@ type ServerIF interface {
 	//stop server
 	Stop()
 
-	AddRouter(router IRouter)
+	AddRouter(id uint64, router IRouter)
 }

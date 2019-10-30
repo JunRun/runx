@@ -16,6 +16,11 @@ type MsgHandler struct {
 	Apis map[uint64]rIterface.IRouter
 }
 
+func NewMsgHandler() *MsgHandler {
+	return &MsgHandler{
+		Apis: make(map[uint64]rIterface.IRouter),
+	}
+}
 func (m *MsgHandler) AddRouter(Id uint64, router rIterface.IRouter) {
 	if _, ok := m.Apis[Id]; ok {
 		panic("Id already exists,Id:" + strconv.Itoa(int(Id)))
@@ -30,6 +35,7 @@ func (m *MsgHandler) DoMsgHandler(request rIterface.IRequest) {
 	handler, ok := m.Apis[request.GetMessageID()]
 	if !ok {
 		fmt.Println("router has err,Id:", strconv.Itoa(int(request.GetMessageID())))
+		return
 	}
 	handler.PreHandle(request)
 	handler.Handle(request)

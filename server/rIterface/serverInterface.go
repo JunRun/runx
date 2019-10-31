@@ -7,4 +7,5 @@ type ServerIF interface {
 	Stop()
 
 	AddRouter(id uint64, router IRouter)
+	GetConnMan() IConnManger
 }

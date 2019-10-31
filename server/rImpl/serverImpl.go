@@ -15,6 +15,7 @@ type Server struct {
 	IPAddress     string `yaml:"ip_address"`
 	Port          int    `yaml:"port"`
 	RouterHandler rIterface.IMsgHandler
+	ConnMan       rIterface.IConnManger
 }
 
 func NewServer() *Server {
@@ -26,6 +27,7 @@ func NewServer() *Server {
 		IPAddress:     util.Config.GetString("sever.ip-address"),
 		Port:          util.Config.GetInt("server.port"),
 		RouterHandler: NewMsgHandler(),
+		ConnMan:       NewConnManger(),
 	}
 	return ser
 }
@@ -60,8 +62,12 @@ func (s *Server) Start() {
 				fmt.Println("Accept TcpConnection error: ", err)
 				continue
 			}
-
-			nc := NewConnection(accept, connID, s.RouterHandler)
+			//判断链接是否达到 最大链接数
+			if s.ConnMan.Len() > util.Config.GetInt("server.max-connection") {
+				accept.Close()
+				continue
+			}
+			nc := NewConnection(s, accept, connID, s.RouterHandler)
 			connID++
 			go nc.Start()
 
@@ -71,9 +77,14 @@ func (s *Server) Start() {
 }
 
 func (s *Server) Stop() {
-
+	s.ConnMan.Clear()
+	fmt.Println("[Stop] the server stop")
 }
 
 func (s *Server) AddRouter(Id uint64, router rIterface.IRouter) {
 	s.RouterHandler.AddRouter(Id, router)
+}
+
+func (s *Server) GetConnMan() rIterface.IConnManger {
+	return s.ConnMan
 }

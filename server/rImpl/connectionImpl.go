@@ -10,6 +10,7 @@ import (
 )
 
 type Connection struct {
+	TcpServer rIterface.ServerIF
 	//当前的tcp 链接
 	Conn *net.TCPConn
 
@@ -28,15 +29,17 @@ type Connection struct {
 }
 
 //初始化链接模块
-func NewConnection(Conn *net.TCPConn, ConnID uint64, handler rIterface.IMsgHandler) *Connection {
+func NewConnection(server rIterface.ServerIF, Conn *net.TCPConn, ConnID uint64, handler rIterface.IMsgHandler) *Connection {
 	c := &Connection{
-		Conn:     Conn,
-		ConnID:   ConnID,
-		Closed:   true,
-		MesCh:    make(chan []byte),
-		ExitChan: make(chan bool, 1),
-		Ms:       handler,
+		TcpServer: server,
+		Conn:      Conn,
+		ConnID:    ConnID,
+		Closed:    true,
+		MesCh:     make(chan []byte),
+		ExitChan:  make(chan bool, 1),
+		Ms:        handler,
 	}
+	c.TcpServer.GetConnMan().AddConn(c)
 	return c
 }
 
@@ -53,6 +56,7 @@ func (c *Connection) Stop() {
 	}
 	c.Conn.Close()
 	c.Closed = false
+	c.TcpServer.GetConnMan().RemoveConn(c)
 	close(c.ExitChan)
 	close(c.MesCh)
 	return

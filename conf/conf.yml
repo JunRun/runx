@@ -5,3 +5,4 @@ server:
   port: 9090
   work-pool-size: 10
   task-queue-len: 10
+  max-connction: 10

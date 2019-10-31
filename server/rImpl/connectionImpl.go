@@ -47,6 +47,7 @@ func (c *Connection) Start() {
 	fmt.Println("Connection  start ConnID =  :", c.ConnID)
 	go c.StartReader()
 	go c.StartWriter()
+	c.TcpServer.CallStartFunc(c)
 }
 
 func (c *Connection) Stop() {
@@ -54,6 +55,7 @@ func (c *Connection) Stop() {
 	if c.Closed == false {
 		return
 	}
+	c.TcpServer.CallStopFunc(c)
 	c.Conn.Close()
 	c.Closed = false
 	c.TcpServer.GetConnMan().RemoveConn(c)

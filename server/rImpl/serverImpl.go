@@ -11,11 +11,13 @@ import (
 type Server struct {
 	//sever name
 	Name          string `yaml:"name"`
-	IPVersion     string `yaml:"ip_version"`
-	IPAddress     string `yaml:"ip_address"`
+	IPVersion     string `yaml:"ip-version"`
+	IPAddress     string `yaml:"ip-address"`
 	Port          int    `yaml:"port"`
 	RouterHandler rIterface.IMsgHandler
 	ConnMan       rIterface.IConnManger
+	OnStartFunc   func(connection rIterface.IConnection)
+	OnStopFunc    func(connection rIterface.IConnection)
 }
 
 func NewServer() *Server {
@@ -87,4 +89,28 @@ func (s *Server) AddRouter(Id uint64, router rIterface.IRouter) {
 
 func (s *Server) GetConnMan() rIterface.IConnManger {
 	return s.ConnMan
+}
+
+func (s *Server) SetStartFunc(start func(conn rIterface.IConnection)) {
+	s.OnStartFunc = start
+}
+
+func (s *Server) SetStopFunc(stop func(conn rIterface.IConnection)) {
+	s.OnStopFunc = stop
+}
+
+func (s *Server) CallStartFunc(conn rIterface.IConnection) {
+	if s.OnStartFunc != nil {
+		s.OnStartFunc(conn)
+	} else {
+		fmt.Println("OnStartFunc is nil")
+	}
+}
+
+func (s *Server) CallStopFunc(conn rIterface.IConnection) {
+	if s.OnStopFunc != nil {
+		s.OnStartFunc(conn)
+	} else {
+		fmt.Println("OnStopFunc is nil")
+	}
 }

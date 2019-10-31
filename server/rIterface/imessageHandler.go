@@ -9,4 +9,6 @@ package rIterface
 type IMsgHandler interface {
 	AddRouter(Id uint64, router IRouter)
 	DoMsgHandler(request IRequest)
+	StartWorkPool()
+	SendMsgToTask(request IRequest)
 }

@@ -1,5 +1,7 @@
 server:
   name: runxapp
-  ip_version: tcp4
-  ip_address: 0.0.0.0
+  ip-version: tcp4
+  ip-address: 0.0.0.0
   port: 9090
+  work-pool-size: 10
+  task-queue-len: 10

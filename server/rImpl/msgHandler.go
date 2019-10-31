@@ -9,16 +9,23 @@ package rImpl
 import (
 	"fmt"
 	"github.com/runx/server/rIterface"
+	"github.com/runx/util"
 	"strconv"
 )
 
 type MsgHandler struct {
 	Apis map[uint64]rIterface.IRouter
+
+	WorkPoolSize uint64
+
+	TaskQueue []chan rIterface.IRequest
 }
 
 func NewMsgHandler() *MsgHandler {
 	return &MsgHandler{
-		Apis: make(map[uint64]rIterface.IRouter),
+		Apis:         make(map[uint64]rIterface.IRouter),
+		WorkPoolSize: uint64(util.Config.GetInt("server.work-pool-size")),
+		TaskQueue:    make([]chan rIterface.IRequest, util.Config.GetInt("server.work-pool-size")),
 	}
 }
 func (m *MsgHandler) AddRouter(Id uint64, router rIterface.IRouter) {
@@ -41,4 +48,27 @@ func (m *MsgHandler) DoMsgHandler(request rIterface.IRequest) {
 	handler.Handle(request)
 	handler.PostHandle(request)
 
+}
+
+func (m *MsgHandler) StartWorkPool() {
+	for i := 0; i < int(m.WorkPoolSize); i++ {
+		m.TaskQueue[i] = make(chan rIterface.IRequest, util.Config.GetInt("TaskQueueLen"))
+		go m.StartTaskQueue(i, m.TaskQueue[i])
+	}
+}
+
+func (m *MsgHandler) StartTaskQueue(workPoolId int, taskQueue chan rIterface.IRequest) {
+	fmt.Println("start workPool ID:", workPoolId)
+	for {
+		select {
+		case request := <-taskQueue:
+			m.DoMsgHandler(request)
+		}
+	}
+}
+
+func (m *MsgHandler) SendMsgToTask(request rIterface.IRequest) {
+	//将接受到的请求发送到连接池通道 ，将来做负载均衡 现在做平均分配
+	workId := request.GetConnection().GetConnID() % m.WorkPoolSize
+	m.TaskQueue[workId] <- request
 }

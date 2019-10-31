@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/runx/server/rIterface"
+	"github.com/runx/util"
 	"io"
 	"net"
 )
@@ -104,7 +105,12 @@ func (c *Connection) StartReader() {
 			message: headMessage,
 		}
 		//执行router方法
-		go c.Ms.DoMsgHandler(&req)
+		if util.Config.GetInt("server.work-pool-size") > 0 {
+			c.Ms.SendMsgToTask(&req)
+		} else {
+			go c.Ms.DoMsgHandler(&req)
+
+		}
 	}
 }
 

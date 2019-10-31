@@ -22,8 +22,8 @@ func NewServer() *Server {
 
 	ser := &Server{
 		Name:          util.Config.GetString("server.name"),
-		IPVersion:     util.Config.GetString("server.ip_version"),
-		IPAddress:     util.Config.GetString("sever.ip_address"),
+		IPVersion:     util.Config.GetString("server.ip-version"),
+		IPAddress:     util.Config.GetString("sever.ip-address"),
 		Port:          util.Config.GetInt("server.port"),
 		RouterHandler: NewMsgHandler(),
 	}
@@ -37,6 +37,8 @@ func (s *Server) Sever() {
 }
 func (s *Server) Start() {
 	go func() {
+		//开启工作池
+		s.RouterHandler.StartWorkPool()
 		fmt.Printf("[Start] Server Listen ip %s:%d", s.IPAddress, s.Port)
 
 		addr, err := net.ResolveTCPAddr(s.IPVersion, fmt.Sprintf("%s:%d", s.IPAddress, s.Port))

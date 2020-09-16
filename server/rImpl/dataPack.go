@@ -11,7 +11,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/runx/server/rIterface"
+	"runx/server/rIterface"
 )
 
 type DataPack struct{}

@@ -3,10 +3,10 @@ package rImpl
 import (
 	"errors"
 	"fmt"
-	"github.com/runx/server/rIterface"
-	"github.com/runx/util"
 	"io"
 	"net"
+	"runx/server/rIterface"
+	"runx/util"
 )
 
 type Connection struct {

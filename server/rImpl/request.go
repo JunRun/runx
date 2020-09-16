@@ -1,6 +1,6 @@
 package rImpl
 
-import "github.com/runx/server/rIterface"
+import "runx/server/rIterface"
 
 type Request struct {
 	conn rIterface.IConnection

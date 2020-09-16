@@ -8,8 +8,8 @@ package rImpl
 
 import (
 	"fmt"
-	"github.com/runx/server/rIterface"
-	"github.com/runx/util"
+	"runx/server/rIterface"
+	"runx/util"
 	"strconv"
 )
 

@@ -9,7 +9,7 @@ package rImpl
 import (
 	"errors"
 	"fmt"
-	"github.com/runx/server/rIterface"
+	"runx/server/rIterface"
 	"strconv"
 	"sync"
 )

@@ -8,8 +8,8 @@ package router
 
 import (
 	"fmt"
-	"github.com/runx/server/rImpl"
-	"github.com/runx/server/rIterface"
+	"runx/server/rImpl"
+	"runx/server/rIterface"
 )
 
 type PingRouter struct {

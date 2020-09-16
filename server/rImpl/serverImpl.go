@@ -2,10 +2,10 @@ package rImpl
 
 import (
 	"fmt"
-	"github.com/runx/server/rIterface"
-	"github.com/runx/util"
 	"log"
 	"net"
+	"runx/server/rIterface"
+	"runx/util"
 )
 
 type Server struct {

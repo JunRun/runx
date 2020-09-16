@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/runx/router"
-	"github.com/runx/server/rImpl"
-	_ "github.com/runx/util"
+	"runx/router"
+	"runx/server/rImpl"
+	_ "runx/util"
 )
 
 func main() {
